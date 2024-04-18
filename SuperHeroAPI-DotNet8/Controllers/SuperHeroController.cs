@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SuperHeroAPI_DotNet8.Entities;
-using Microsoft.AspNetCore.Http;
+using SuperHeroAPI_DotNet8.Entities.DTOs;
 using Microsoft.EntityFrameworkCore;
 using SuperHeroAPI_DotNet8.Data;
 
@@ -18,6 +18,7 @@ namespace SuperHeroAPI_DotNet8.Controllers
         }
 
         [HttpGet]
+        [Route("GetAll")]
         public async Task<ActionResult<List<SuperHero>>> GetAllHeroes()
         {
             var heroes = await _context.SuperHeroes.ToListAsync();
@@ -25,7 +26,8 @@ namespace SuperHeroAPI_DotNet8.Controllers
             return Ok(heroes);
         }
         
-        [HttpGet("{id}")]
+        [HttpGet]
+        [Route("GetOne")]
         public async Task<ActionResult<SuperHero>> GetHero(int id)
         {
             var hero = await _context.SuperHeroes.FindAsync(id);
@@ -36,14 +38,24 @@ namespace SuperHeroAPI_DotNet8.Controllers
         }
         
         [HttpPost]
-        public async Task<ActionResult<SuperHero>> AddHero(SuperHero hero)
+        [Route("Add")]
+        public async Task<ActionResult<SuperHero>> AddHero(SuperHeroAddDto heroAdd)
         {
+            SuperHero hero = new()
+            {
+                FirstName = heroAdd.Name,
+                LastName = heroAdd.LastName,
+                Name = heroAdd.Name,
+                Place = heroAdd.Place
+            };
+            
             _context.SuperHeroes.Add(hero);
             await _context.SaveChangesAsync();
             
             return Ok(await _context.SuperHeroes.ToListAsync());
         }
         [HttpPut]
+        [Route("Update")]
         public async Task<ActionResult<SuperHero>> UpdateHero(SuperHero hero)
         {
             var dbHero = await _context.SuperHeroes.FindAsync(hero.Id);
@@ -63,7 +75,8 @@ namespace SuperHeroAPI_DotNet8.Controllers
             return Ok(await _context.SuperHeroes.ToListAsync());
 
         }
-        [HttpDelete("{id}")]
+        [HttpDelete]
+        [Route("Delete")]
         public async Task<ActionResult<SuperHero>> DeleteHero(int id)
         {
             var dbHero = await _context.SuperHeroes.FindAsync(id);
