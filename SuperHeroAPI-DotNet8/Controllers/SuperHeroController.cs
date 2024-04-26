@@ -93,5 +93,20 @@ namespace SuperHeroAPI_DotNet8.Controllers
             return Ok(await _context.SuperHeroes.ToListAsync());
 
         }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Agency>> GetHeroesbyAgencyId(int id)
+        {
+            var dbAgency = await _context.Agencies.Include(c => c.SuperHeroes)
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (dbAgency is null)
+            {
+                return NotFound("Agency not found");
+            }
+
+            return Ok(dbAgency);
+
+        }
     }  
 }

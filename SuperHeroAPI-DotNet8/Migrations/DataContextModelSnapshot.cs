@@ -21,6 +21,23 @@ namespace SuperHeroAPI_DotNet8.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("SuperHeroAPI_DotNet8.Entities.Agency", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Agencies");
+                });
+
             modelBuilder.Entity("SuperHeroAPI_DotNet8.Entities.SuperHero", b =>
                 {
                     b.Property<int>("Id")
@@ -28,6 +45,9 @@ namespace SuperHeroAPI_DotNet8.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AgencyId")
+                        .HasColumnType("int");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
@@ -47,7 +67,25 @@ namespace SuperHeroAPI_DotNet8.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AgencyId");
+
                     b.ToTable("SuperHeroes");
+                });
+
+            modelBuilder.Entity("SuperHeroAPI_DotNet8.Entities.SuperHero", b =>
+                {
+                    b.HasOne("SuperHeroAPI_DotNet8.Entities.Agency", "Agency")
+                        .WithMany("SuperHeroes")
+                        .HasForeignKey("AgencyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Agency");
+                });
+
+            modelBuilder.Entity("SuperHeroAPI_DotNet8.Entities.Agency", b =>
+                {
+                    b.Navigation("SuperHeroes");
                 });
 #pragma warning restore 612, 618
         }
