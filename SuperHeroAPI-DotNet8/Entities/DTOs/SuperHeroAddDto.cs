@@ -7,7 +7,11 @@ public class SuperHeroAddDto
 {
     [Required(ErrorMessage = "The name field is required")]
     public string Name { get; set; } 
+    
     public string FirstName { get; set; } = String.Empty;
     public string LastName { get; set; } = String.Empty;
     public string Place { get; set; } = String.Empty;
+    
+    [Required(ErrorMessage = "The AgencyId field is required")]
+    public int AgencyId { get; set; }
 }

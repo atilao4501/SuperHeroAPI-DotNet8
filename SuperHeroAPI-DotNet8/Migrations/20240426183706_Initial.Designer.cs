@@ -11,7 +11,7 @@ using SuperHeroAPI_DotNet8.Data;
 namespace SuperHeroAPI_DotNet8.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240423112312_Initial")]
+    [Migration("20240426183706_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -77,13 +77,11 @@ namespace SuperHeroAPI_DotNet8.Migrations
 
             modelBuilder.Entity("SuperHeroAPI_DotNet8.Entities.SuperHero", b =>
                 {
-                    b.HasOne("SuperHeroAPI_DotNet8.Entities.Agency", "Agency")
+                    b.HasOne("SuperHeroAPI_DotNet8.Entities.Agency", null)
                         .WithMany("SuperHeroes")
                         .HasForeignKey("AgencyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Agency");
                 });
 
             modelBuilder.Entity("SuperHeroAPI_DotNet8.Entities.Agency", b =>

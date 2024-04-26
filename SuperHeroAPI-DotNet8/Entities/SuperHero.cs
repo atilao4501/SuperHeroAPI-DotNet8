@@ -11,7 +11,7 @@ public class SuperHero
     public string FirstName { get; set; } = String.Empty;
     public string LastName { get; set; } = String.Empty;
     public string Place { get; set; } = String.Empty;
-    
-    public Agency Agency { get; set; }
+
+    public int AgencyId { get; set; }
     
 }

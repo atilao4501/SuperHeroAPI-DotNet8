@@ -74,13 +74,11 @@ namespace SuperHeroAPI_DotNet8.Migrations
 
             modelBuilder.Entity("SuperHeroAPI_DotNet8.Entities.SuperHero", b =>
                 {
-                    b.HasOne("SuperHeroAPI_DotNet8.Entities.Agency", "Agency")
+                    b.HasOne("SuperHeroAPI_DotNet8.Entities.Agency", null)
                         .WithMany("SuperHeroes")
                         .HasForeignKey("AgencyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Agency");
                 });
 
             modelBuilder.Entity("SuperHeroAPI_DotNet8.Entities.Agency", b =>

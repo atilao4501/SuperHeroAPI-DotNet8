@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using SuperHeroAPI_DotNet8.Entities;
 using SuperHeroAPI_DotNet8.Entities.DTOs;
 using Microsoft.EntityFrameworkCore;
@@ -17,45 +18,60 @@ namespace SuperHeroAPI_DotNet8.Controllers
             _context = context;
         }
 
-        [HttpGet]
-        [Route("GetAll")]
+        [HttpGet("GetAll")]
         public async Task<ActionResult<List<SuperHero>>> GetAllHeroes()
         {
             var heroes = await _context.SuperHeroes.ToListAsync();
-            
+
             return Ok(heroes);
         }
-        
-        [HttpGet]
-        [Route("GetOne")]
+
+        [HttpGet("GetOne")]
         public async Task<ActionResult<SuperHero>> GetHero(int id)
         {
             var hero = await _context.SuperHeroes.FindAsync(id);
             if (hero is null)
                 return BadRequest("Hero not found");
-            
+
             return Ok(hero);
         }
-        
-        [HttpPost]
-        [Route("Add")]
-        public async Task<ActionResult<SuperHero>> AddHero(SuperHeroAddDto heroAdd)
+
+        [HttpPost("AddHeroes")]
+        public async Task<ActionResult<List<SuperHero>>> AddHeroes(List<SuperHeroAddDto> heroesAdd)
         {
-            SuperHero hero = new()
+            List<SuperHeroAddDto> NotFoundHeroes = new List<SuperHeroAddDto>();
+
+            foreach (var heroAdd in heroesAdd)
             {
-                FirstName = heroAdd.Name,
-                LastName = heroAdd.LastName,
-                Name = heroAdd.Name,
-                Place = heroAdd.Place
-            };
-            
-            _context.SuperHeroes.Add(hero);
+                if (await _context.Agencies.FindAsync(heroAdd.AgencyId) != null)
+                {
+                    NotFoundHeroes.Add(heroAdd);
+                }
+                else
+                {
+                    SuperHero hero = new()
+                    {
+                        FirstName = heroAdd.Name,
+                        LastName = heroAdd.LastName,
+                        Name = heroAdd.Name,
+                        Place = heroAdd.Place,
+                        AgencyId = heroAdd.AgencyId
+                    };
+                    _context.SuperHeroes.Add(hero);
+                }
+            }
+
+            if (NotFoundHeroes.Count != 0)
+            {
+                return BadRequest($"Heroes with invalid agencies: {NotFoundHeroes}");
+            }
+
             await _context.SaveChangesAsync();
-            
+
             return Ok(await _context.SuperHeroes.ToListAsync());
         }
-        [HttpPut]
-        [Route("Update")]
+
+        [HttpPut("Update")]
         public async Task<ActionResult<SuperHero>> UpdateHero(SuperHero hero)
         {
             var dbHero = await _context.SuperHeroes.FindAsync(hero.Id);
@@ -73,10 +89,9 @@ namespace SuperHeroAPI_DotNet8.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(await _context.SuperHeroes.ToListAsync());
-
         }
-        [HttpDelete]
-        [Route("Delete")]
+
+        [HttpDelete("Delete")]
         public async Task<ActionResult<SuperHero>> DeleteHero(int id)
         {
             var dbHero = await _context.SuperHeroes.FindAsync(id);
@@ -91,7 +106,19 @@ namespace SuperHeroAPI_DotNet8.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(await _context.SuperHeroes.ToListAsync());
+        }
 
+        [HttpPost("addAgencies")]
+        public async Task<ActionResult<List<Agency>>> AddAgencies(List<Agency> agencies)
+        {
+            foreach (var agency in agencies)
+            {
+                await _context.Agencies.AddAsync(agency);
+            }
+
+            _context.SaveChangesAsync();
+
+            return Ok(await _context.Agencies.ToListAsync());
         }
 
         [HttpGet("{id}")]
@@ -106,7 +133,6 @@ namespace SuperHeroAPI_DotNet8.Controllers
             }
 
             return Ok(dbAgency);
-
         }
-    }  
+    }
 }
