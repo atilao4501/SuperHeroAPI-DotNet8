@@ -274,3 +274,7 @@ D:\GitHub\SuperHeroAPI-DotNet8\SuperHeroAPI-DotNet8\obj\Debug\net8.0\refint\Supe
 D:\GitHub\SuperHeroAPI-DotNet8\SuperHeroAPI-DotNet8\obj\Debug\net8.0\SuperHeroAPI-DotNet8.pdb
 D:\GitHub\SuperHeroAPI-DotNet8\SuperHeroAPI-DotNet8\obj\Debug\net8.0\SuperHeroAPI-DotNet8.genruntimeconfig.cache
 D:\GitHub\SuperHeroAPI-DotNet8\SuperHeroAPI-DotNet8\obj\Debug\net8.0\ref\SuperHeroAPI-DotNet8.dll
+D:\GitHub\SuperHeroAPI-DotNet8\SuperHeroAPI-DotNet8\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+D:\GitHub\SuperHeroAPI-DotNet8\SuperHeroAPI-DotNet8\bin\Debug\net8.0\Scrutor.dll
+D:\GitHub\SuperHeroAPI-DotNet8\SuperHeroAPI-DotNet8\bin\Debug\net8.0\Swashbuckle.AspNetCore.Filters.dll
+D:\GitHub\SuperHeroAPI-DotNet8\SuperHeroAPI-DotNet8\bin\Debug\net8.0\Swashbuckle.AspNetCore.Filters.Abstractions.dll

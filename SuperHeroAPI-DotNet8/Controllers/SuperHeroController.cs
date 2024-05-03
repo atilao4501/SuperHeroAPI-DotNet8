@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using SuperHeroAPI_DotNet8.Entities;
 using SuperHeroAPI_DotNet8.Entities.DTOs;
@@ -39,16 +40,13 @@ namespace SuperHeroAPI_DotNet8.Controllers
         [HttpPost("AddHeroes")]
         public async Task<ActionResult<List<SuperHero>>> AddHeroes(List<SuperHeroAddDto> heroesAdd)
         {
-            List<SuperHeroAddDto> NotFoundHeroes = new List<SuperHeroAddDto>();
 
             foreach (var heroAdd in heroesAdd)
             {
-                if (await _context.Agencies.FindAsync(heroAdd.AgencyId) != null)
+                if (await _context.Agencies.FindAsync(heroAdd.AgencyId) == null)
                 {
-                    NotFoundHeroes.Add(heroAdd);
+                    return BadRequest($"Agency not found:{heroAdd.AgencyId}");
                 }
-                else
-                {
                     SuperHero hero = new()
                     {
                         FirstName = heroAdd.Name,
@@ -58,12 +56,7 @@ namespace SuperHeroAPI_DotNet8.Controllers
                         AgencyId = heroAdd.AgencyId
                     };
                     _context.SuperHeroes.Add(hero);
-                }
-            }
-
-            if (NotFoundHeroes.Count != 0)
-            {
-                return BadRequest($"Heroes with invalid agencies: {NotFoundHeroes}");
+                
             }
 
             await _context.SaveChangesAsync();
@@ -107,32 +100,6 @@ namespace SuperHeroAPI_DotNet8.Controllers
 
             return Ok(await _context.SuperHeroes.ToListAsync());
         }
-
-        [HttpPost("addAgencies")]
-        public async Task<ActionResult<List<Agency>>> AddAgencies(List<Agency> agencies)
-        {
-            foreach (var agency in agencies)
-            {
-                await _context.Agencies.AddAsync(agency);
-            }
-
-            _context.SaveChangesAsync();
-
-            return Ok(await _context.Agencies.ToListAsync());
-        }
-
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Agency>> GetHeroesbyAgencyId(int id)
-        {
-            var dbAgency = await _context.Agencies.Include(c => c.SuperHeroes)
-                .FirstOrDefaultAsync(c => c.Id == id);
-
-            if (dbAgency is null)
-            {
-                return NotFound("Agency not found");
-            }
-
-            return Ok(dbAgency);
-        }
+        
     }
 }
