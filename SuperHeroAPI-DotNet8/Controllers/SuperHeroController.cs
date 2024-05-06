@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using SuperHeroAPI_DotNet8.Entities;
@@ -13,12 +14,14 @@ namespace SuperHeroAPI_DotNet8.Controllers
     public class SuperHeroController : ControllerBase
     {
         private readonly DataContext _context;
+        private readonly IMapper _mapper;
 
-        public SuperHeroController(DataContext context)
+        public SuperHeroController(DataContext context, IMapper mapper)
         {
+            _mapper = mapper;
             _context = context;
         }
-
+        
         [HttpGet("GetAll")]
         public async Task<ActionResult<List<SuperHero>>> GetAllHeroes()
         {
@@ -26,7 +29,7 @@ namespace SuperHeroAPI_DotNet8.Controllers
 
             return Ok(heroes);
         }
-
+        
         [HttpGet("GetOne")]
         public async Task<ActionResult<SuperHero>> GetHero(int id)
         {
@@ -37,6 +40,7 @@ namespace SuperHeroAPI_DotNet8.Controllers
             return Ok(hero);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost("AddHeroes")]
         public async Task<ActionResult<List<SuperHero>>> AddHeroes(List<SuperHeroAddDto> heroesAdd)
         {
@@ -64,6 +68,7 @@ namespace SuperHeroAPI_DotNet8.Controllers
             return Ok(await _context.SuperHeroes.ToListAsync());
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("Update")]
         public async Task<ActionResult<SuperHero>> UpdateHero(SuperHero hero)
         {
@@ -84,6 +89,7 @@ namespace SuperHeroAPI_DotNet8.Controllers
             return Ok(await _context.SuperHeroes.ToListAsync());
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("Delete")]
         public async Task<ActionResult<SuperHero>> DeleteHero(int id)
         {
