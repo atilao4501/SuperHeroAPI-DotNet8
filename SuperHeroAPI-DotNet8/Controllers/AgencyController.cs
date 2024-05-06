@@ -2,6 +2,7 @@
 using System.Net;
 using System.Security.Claims;
 using System.Text;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
@@ -20,18 +21,18 @@ namespace SuperHeroAPI_DotNet8.Controllers
     public class AgencyController : ControllerBase
     {
         private readonly DataContext _context;
-        private readonly IConfiguration _config;
         private readonly ILoginService _loginService;
+        private readonly IMapper _mapper;
 
-        public AgencyController(DataContext context, IConfiguration config, ILoginService loginService)
+        public AgencyController(DataContext context, ILoginService loginService, IMapper mapper)
         {
             _context = context;
-            _config = config;
             _loginService = loginService;
+            _mapper = mapper;
         }
 
         [HttpPut("Update")]
-        [Authorize(Roles = "admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<Agency>> UpdateAgency(AgencyUpdateDto agency)
         {
             var dbAgency = await _context.Agencies.FindAsync(agency.Id);
@@ -42,52 +43,53 @@ namespace SuperHeroAPI_DotNet8.Controllers
             }
 
             dbAgency.Name = agency.Name;
+            dbAgency.Role = agency.Role;
 
             await _context.SaveChangesAsync();
 
-            return Ok(await _context.Agencies.ToListAsync());
+            var agencies = _context.Agencies.Select(agency => _mapper.Map<AgencyUpdateDto>(agency));
+            
+            return Ok(agencies);
         }
-
+        
+        [Authorize(Roles = "Admin")]
         [HttpDelete("Delete")]
-        public async Task<ActionResult<Agency>> DeleteHero(int id)
+        public async Task<ActionResult<Agency>> DeleteAgency(int id)
         {
             var agency = await _context.Agencies.FindAsync(id);
 
             if (agency is null)
             {
-                return NotFound("Hero not found.");
+                return NotFound("Agency not found.");
             }
 
             _context.Agencies.Remove(agency);
 
             await _context.SaveChangesAsync();
 
-            return Ok(await _context.Agencies.ToListAsync());
+            var agencies = _context.Agencies.Select(agency => _mapper.Map<AgencyUpdateDto>(agency));
+            
+            return Ok(agencies);
         }
-
+        
+        [Authorize(Roles = "Admin")]
         [HttpPost("addAgencies")]
-        public async Task<ActionResult<List<AgencyAddDto>>> AddAgencies(List<AgencyAddDto> agencies)
+        public async Task<ActionResult<List<AgencyAddDto>>> AddAgencies(List<AgencyAddDto> agenciesAddDtos)
         {
-            foreach (var agencyDto in agencies)
+            foreach (var agencyAddDto in agenciesAddDtos)
             {
-                var agency = new Agency()
-                {
-                    Name = agencyDto.Name,
-                    Password = agencyDto.Password,
-                    Role = agencyDto.Role
-                };
-
-                await _context.Agencies.AddAsync(agency);
+                _context.Add(_mapper.Map<Agency>(agencyAddDto));
             }
-
+            
             await _context.SaveChangesAsync();
 
-            return Ok(await _context.Agencies.ToListAsync());
+            var agencies = _context.Agencies.Select(agency => _mapper.Map<Agency>(agency));
+            
+            return Ok(agencies);
         }
 
         [HttpGet("GetAgency")]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<Agency>> GetHeroesbyAgencyId(int id)
+        public async Task<ActionResult<Agency>> GetAgencyById(int id)
         {
             var dbAgency = await _context.Agencies.Include(c => c.SuperHeroes)
                 .FirstOrDefaultAsync(c => c.Id == id);
@@ -97,10 +99,12 @@ namespace SuperHeroAPI_DotNet8.Controllers
                 return NotFound("Agency not found");
             }
 
-            return Ok(dbAgency);
+            var agencyOutput = _mapper.Map<AgencyUpdateDto>(dbAgency);
+
+            return Ok(agencyOutput);
         }
 
-        [HttpPost]
+        [HttpPost("Login")]
         public async Task<ActionResult<string>> Login(AgencyLoginDto agencyLoginDto)
         {
             var dbAgency = await _context.Agencies.FirstOrDefaultAsync(a => a.Name == agencyLoginDto.Name);
